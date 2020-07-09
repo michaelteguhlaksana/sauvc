@@ -23,6 +23,7 @@ jobs:
 
           sudo apt-get update -y
           sudo apt-get install -y python-rospy
+          apt-file search rospy
       
       - name: Run Tests
         run : |
