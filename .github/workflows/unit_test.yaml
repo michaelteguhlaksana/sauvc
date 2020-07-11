@@ -24,8 +24,8 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y python-rospy
 
-          pip freeze
           dpkg -L python-rospy
+          echo ${PYTHONPATH}
       
       - name: Run Tests
         run : |
