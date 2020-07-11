@@ -21,8 +21,9 @@ jobs:
           pip install pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-          sudo apt-get update -y
-          sudo apt-get install -y python-rospy
+        #  sudo apt-get update -y
+        #  sudo apt-get install -y python-rospy
+          pip install python rospy
           pip freeze
           dpkg -L python-rospy
       
