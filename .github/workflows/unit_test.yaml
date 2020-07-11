@@ -23,9 +23,9 @@ jobs:
 
           sudo apt-get update -y
           sudo apt-get install -y python-rospy
-          export PYTHONPATH=/usr/lib/python2.7/dist-packages${PYTHONPATH:+:${PYTHONPATH}}
+          export PYTHONPATH="${PYTHONPATH}:/usr/lib/python2.7/dist-packages"
           source ~/.bashrc
-          
+
           pip freeze
           dpkg -L python-rospy
       
