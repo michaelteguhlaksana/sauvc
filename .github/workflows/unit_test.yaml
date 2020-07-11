@@ -23,15 +23,13 @@ jobs:
 
           sudo apt-get update -y
           sudo apt-get install -y python-rospy
-          export PYTHONPATH="${PYTHONPATH}:/usr/lib/python2.7/dist-packages"
-          source ~/.bashrc
 
           pip freeze
           dpkg -L python-rospy
       
       - name: Run Tests
         run : |
-          pytest ./sauvc_control/tests/
+          PYTHONPATH="${PYTHONPATH}:/my/other/path" pytest ./sauvc_control/tests/
 
 
   style_check:
