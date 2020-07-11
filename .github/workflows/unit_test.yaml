@@ -21,7 +21,11 @@ jobs:
           pip install pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-          pip install python rospy
+          sudo apt-get update -y
+          sudo apt-get install -y python-rospy
+          export PYTHONPATH=/usr/lib/python2.7/dist-packages${PYTHONPATH:+:${PYTHONPATH}}
+          source ~/.bashrc
+          
           pip freeze
           dpkg -L python-rospy
       
