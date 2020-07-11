@@ -28,7 +28,7 @@ jobs:
       
       - name: Run Tests
         run : |
-          PYTHONPATH="${PYTHONPATH}:/usr/lib/python2.7/dist-packages" pytest ./sauvc_control/tests/
+          PYTHONPATH="${PYTHONPATH}:/opt/hostedtoolcache/Python/2.7.18/x64/lib/python2.7/dist-packages" pytest ./sauvc_control/tests/
 
 
   style_check:
