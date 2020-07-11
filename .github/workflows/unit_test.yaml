@@ -22,7 +22,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
           sudo apt-get update -y
-          sudo apt-get install -y python-rospy
+          sudo apt-get install -y python2-rospy
           pip freeze
           dpkg -L rospy
       
