@@ -26,22 +26,25 @@ jobs:
 
           sudo apt update
           sudo apt install ros-melodic-ros-base
+          sudo apt-get install ros-melodic-catkin python-catkin-tools
           source /opt/ros/melodic/setup.bash
 
       - name: Setup ROS
         run: |
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws/
-          catkin_make
+          catkin build
 
           source devel/setup.bash
+          echo $ROS_PACKAGE_PATH
 
           cd ./src/
           mkdir -p sauvc_control
           cp -R ~/sauvc_control/* ~/catkin_ws/src/sauvc_control
 
           cd ..
-          catkin_make
+          catkin build
+          ~/catkin_ws/devel/setup.bash
       
       - name: Run Tests
         run : |
