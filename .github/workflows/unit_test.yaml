@@ -29,6 +29,8 @@ jobs:
           sudo apt-get install ros-melodic-catkin python-catkin-tools python-catkin-pkg
           source /opt/ros/melodic/setup.bash
 
+          export PYTHONPATH=$PYTHONPATH:/home/dev/python-files 
+
       - name: Setup ROS
         run: |
           source /opt/ros/melodic/setup.bash
