@@ -29,12 +29,9 @@ jobs:
           sudo apt-get install ros-melodic-catkin python-catkin-tools
           source /opt/ros/melodic/setup.bash
 
-          sudo apt-get install python-rosdep
-          sudo rosdep init
-          sudo rosdep update
-
       - name: Setup ROS
         run: |
+          source /opt/ros/melodic/setup.bash
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws/src/
           mkdir -p sauvc_control
