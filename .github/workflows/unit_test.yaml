@@ -29,6 +29,8 @@ jobs:
           sudo apt-get install ros-melodic-catkin python-catkin-tools
           source /opt/ros/melodic/setup.bash
 
+          rosdep update
+
       - name: Setup ROS
         run: |
           mkdir -p ~/catkin_ws/src
