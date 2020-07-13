@@ -32,12 +32,7 @@ jobs:
       - name: Setup ROS
         run: |
           mkdir -p ~/catkin_ws/src
-          cd ~/catkin_ws/
-
-          source devel/setup.bash
-          echo $ROS_PACKAGE_PATH
-
-          cd ./src/
+          cd ~/catkin_ws/src/
           mkdir -p sauvc_control
           cp -R ~/sauvc_control/* ~/catkin_ws/src/sauvc_control
 
