@@ -39,6 +39,8 @@ jobs:
           cd ..
           catkin build
           ~/catkin_ws/devel/setup.bash
+        env: 
+          HOME: /home/runner/work/sauvc/sauvc
       
       - name: Run Tests
         run : |
