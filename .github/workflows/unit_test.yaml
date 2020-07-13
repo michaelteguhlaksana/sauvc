@@ -31,7 +31,7 @@ jobs:
 
       - name: Setup ROS
         run: |
-          PYTHONPATH="${PYTHONPATH}:/opt/hostedtoolcache/Python/2.7.18/x64/lib/python2.7/dist-packages" 
+          export PYTHONPATH="${PYTHONPATH}:/opt/hostedtoolcache/Python/2.7.18/x64/lib/python2.7/dist-packages" 
           source /opt/ros/melodic/setup.bash
 
           mkdir -p ~/catkin_ws/src
