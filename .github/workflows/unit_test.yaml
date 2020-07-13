@@ -30,8 +30,8 @@ jobs:
           source /opt/ros/melodic/setup.bash
 
           sudo apt-get install python-rosdep
-          rosdep init
-          rosdep update
+          sudo rosdep init
+          sudo rosdep update
 
       - name: Setup ROS
         run: |
