@@ -29,7 +29,7 @@ jobs:
           sudo apt-get install ros-melodic-catkin python-catkin-tools python-catkin-pkg
           source /opt/ros/melodic/setup.bash
 
-          find ~/ -type f -name "catkin_pkg.package"
+          locate catkin_pkg
 
       - name: Setup ROS
         run: |
@@ -40,8 +40,6 @@ jobs:
           cd ~/catkin_ws/src/
           mkdir -p sauvc_control
           cp -R ~/sauvc_control/* ~/catkin_ws/src/sauvc_control
-
-          locate catkin_pkg
 
           cd ..
           catkin build
