@@ -30,7 +30,6 @@ jobs:
           source /opt/ros/melodic/setup.bash
 
           pip install catkin_pkg
-          dpkg -L catkin_pkg
 
       - name: Setup ROS
         run: |
