@@ -41,6 +41,8 @@ jobs:
           mkdir -p sauvc_control
           cp -R ~/sauvc_control/* ~/catkin_ws/src/sauvc_control
 
+          locate catkin_pkg
+
           cd ..
           catkin build
           ~/catkin_ws/devel/setup.bash
