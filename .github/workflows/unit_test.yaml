@@ -29,7 +29,7 @@ jobs:
           sudo apt-get install ros-melodic-catkin python-catkin-tools python-catkin-pkg
           source /opt/ros/melodic/setup.bash
 
-          dpkg -L catkin_pkg
+          dpkg -L python-catkin-pkg
 
       - name: Setup ROS
         run: |
