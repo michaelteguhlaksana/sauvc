@@ -30,6 +30,7 @@ jobs:
           source /opt/ros/melodic/setup.bash
 
           pip install catkin_pkg
+          sudo apt-get ros-melodic-std_msgs ros-melodic-message_generation
 
       - name: Setup ROS
         run: |
@@ -39,7 +40,7 @@ jobs:
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws/src/
           mkdir -p sauvc_control
-          mv -v ~/sauvc_control ~/catkin_ws/src/sauvc_control
+          cp -R ~/sauvc_control/* ~/catkin_ws/src/sauvc_control
 
           cd ..
           catkin build
@@ -52,7 +53,6 @@ jobs:
           source /opt/ros/melodic/setup.bash
           ~/catkin_ws/devel/setup.bash
           pytest ./catkin_ws/src/sauvc_control
-
 
   style_check:
     name: Pylint Style Check
