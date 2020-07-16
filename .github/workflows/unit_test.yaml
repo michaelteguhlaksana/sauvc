@@ -33,6 +33,7 @@ jobs:
           pip install catkin_pkg
           pip install pyyaml
           pip install empy
+          pip install pytest-mock
 
       - name: Setup ROS
         run: |
