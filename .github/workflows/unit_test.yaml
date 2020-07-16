@@ -39,7 +39,7 @@ jobs:
           mkdir -p ~/catkin_ws/src
           cd ~/catkin_ws/src/
           mkdir -p sauvc
-          cp -R ~/* ~/catkin_ws/src/sauvc
+          cp -R ~/sauvc_app ~/sauvc_control ~/sauvc_msgs ~/catkin_ws/src/sauvc
 
           cd ..
           catkin build
