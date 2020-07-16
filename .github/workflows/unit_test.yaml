@@ -30,6 +30,7 @@ jobs:
           source /opt/ros/melodic/setup.bash
 
           pip install catkin_pkg
+          pip install pyyaml
 
       - name: Setup ROS
         run: |
@@ -46,12 +47,12 @@ jobs:
           ~/catkin_ws/devel/setup.bash
         env: 
           HOME: /home/runner/work/sauvc/sauvc
-      
+
       - name: Run Tests
         run : |
           source /opt/ros/melodic/setup.bash
           ~/catkin_ws/devel/setup.bash
-          pytest ./catkin_ws/src/sauvc_control
+          pytest ./catkin_ws/src/sauvc/sauvc_control
 
   style_check:
     name: Pylint Style Check
