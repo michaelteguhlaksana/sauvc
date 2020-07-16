@@ -30,7 +30,7 @@ jobs:
           source /opt/ros/melodic/setup.bash
 
           pip install catkin_pkg
-          sudo apt-get ros-melodic-std_msgs ros-melodic-message_generation
+          sudo apt-get install ros-melodic-std_msgs ros-melodic-message_generation
 
       - name: Setup ROS
         run: |
