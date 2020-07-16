@@ -52,7 +52,7 @@ jobs:
       - name: Run Tests
         run : |
           source /opt/ros/melodic/setup.bash
-          ~/catkin_ws/devel/setup.bash
+          source ~/catkin_ws/devel/setup.bash
           pytest ./catkin_ws/src/sauvc/sauvc_control
 
   style_check:
