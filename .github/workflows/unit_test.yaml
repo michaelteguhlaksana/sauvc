@@ -54,6 +54,8 @@ jobs:
           source /opt/ros/melodic/setup.bash
           source ~/catkin_ws/devel/setup.bash
           pytest ./catkin_ws/src/sauvc/sauvc_control
+        env: 
+          HOME: /home/runner/work/sauvc/sauvc
 
   style_check:
     name: Pylint Style Check
