@@ -1,6 +1,7 @@
 import rospy
 from sauvc_msgs.msg import MotionData
 from geometry_msgs.msg import QuaternionStamped
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
 
 
@@ -37,15 +38,15 @@ class PIDController(object):
             "7": int,
             "8": int
         }  # type: dict
-        self._actual_euler = {"alpha": float, "beta": float, "gamma": float}  # type: dict
-        self._target_euler = {"alpha": float, "beta": float, "gamma": float}  # type: dict
+        self._actual_euler = {"pitch": float, "roll": float, "yaw": float}  # type: dict
+        self._target_euler = {"pitch": float, "roll": float, "yaw": float}  # type: dict
 
     def _update_motion_data(self, msg):
         """Update the motion data."""
         if self._auv_motion != msg.motion:
-            self._target_euler["alpha"] = self._actual_euler["alpha"]
-            self._target_euler["beta"] = self._actual_euler["beta"]
-            self._target_euler["gamma"] = self._actual_euler["gamma"]
+            self._target_euler["pitch"] = self._actual_euler["pitch"]
+            self._target_euler["roll"] = self._actual_euler["roll"]
+            self._target_euler["yaw"] = self._actual_euler["yaw"]
             self._auv_motion = msg.motion
         self._thrusters_actual_speed["1"] = msg.thrusters_speed.thruster_id1_speed
         self._thrusters_actual_speed["2"] = msg.thrusters_speed.thruster_id2_speed
@@ -58,72 +59,86 @@ class PIDController(object):
 
     def _get_quaternion_data(self, msg):
         """Get IMU quaternion data."""
-        alpha, beta, gamma = PIDController.get_euler_angle_from_quat(msg.quaternion.w, msg.quaternion.x,
-                                                                     msg.quaternion.y, msg.quaternion.z)
-        self._actual_euler["alpha"], self._actual_euler["beta"], self._actual_euler["gamma"] \
-            = alpha, beta, gamma
+        quat_list = [msg.quaternion.w, msg.quaternion.x, msg.quaternion.y, msg.quaternion.z]
+        (self._actual_euler["pitch"], self._actual_euler["roll"], self._actual_euler["yaw"]) \
+            = euler_from_quaternion(quat_list)
 
-    @staticmethod
-    def get_euler_angle_from_quat(w, x, y, z):
-        """Get euler angle from quaternion data."""
-        t0 = +2.0 * (w * x + y * z)
-        t1 = +1.0 - 2.0 * (x * x + y * y)
-        alpha = math.atan2(t0, t1) * 180 / math.pi
-        t2 = +2.0 * (w * y - z * x)
-        t2 = +1.0 if t2 > +1.0 else t2
-        t2 = -1.0 if t2 < -1.0 else t2
-        beta = math.asin(t2) * 180 / math.pi
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        gamma = math.atan2(t3, t4) * 180 / math.pi
-        return alpha, beta, gamma
+    def _compute_movement_error(self, motion):
+        """Compute the forward movement error's magnitude and direction. ccw deviation from actual: +ve; cw: -ve"""
+        error = {"pitch": 0, "roll": 0, "yaw": 0}
+        if (motion == "forward" or motion == "backward"):
+            error["yaw"] = self._actual_euler["yaw"] - self._target_euler["yaw"]
+        if (motion == "submerge" or motion == "surface"):
+            error["pitch"] = self._actual_euler["pitch"] - self._target_euler["pitch"]
+            error["roll"] = self._actual_euler["roll"] - self._target_euler["roll"]
+        for key in error:
+            if (error[key] > math.pi):
+                    error[key] -= 2 * math.pi
+            if (error[key] < math.pi):
+                    error[key] += 2 * math.pi
+        return error
 
-    def _compute_forward_movement_error(self):
-        """Compute the forward movement error's magnitude and direction."""
-        if (self._actual_euler["gamma"] >= 0 and self._target_euler["gamma"] >= 0) \
-                or (self._actual_euler["gamma"] < 0 and self._target_euler["gamma"] < 0):
-            error = math.fabs(self._target_euler["gamma"] - self._actual_euler["gamma"])
-            if self._target_euler["gamma"] > self._actual_euler["gamma"]:
-                direction_to_compensate = "CCW"
-            else:
-                direction_to_compensate = "CW"
-        else:
-            if math.fabs(self._actual_euler["gamma"]) > 90 and math.fabs(self._target_euler["gamma"]) > 90:
-                error = math.fabs(180 - math.fabs(self._target_euler["gamma"])) + \
-                        math.fabs(180 - math.fabs(self._actual_euler["gamma"]))
-                if self._target_euler["gamma"] < self._actual_euler["gamma"]:
-                    direction_to_compensate = "CCW"
-                else:
-                    direction_to_compensate = "CW"
-            else:
-                error = math.fabs(self._target_euler["gamma"]) + math.fabs(self._actual_euler["gamma"])
-                if self._target_euler["gamma"] > self._actual_euler["gamma"]:
-                    direction_to_compensate = "CCW"
-                else:
-                    direction_to_compensate = "CW"
-        return direction_to_compensate, error
-
-    def _compute_stabilised_speed(self, thruster_id, error, direction_to_compensate):
+    def _compute_stabilised_speed(self, thruster_id, error):
         """Compute the stabilised speed from the controller."""
-        if (thruster_id == "1" and direction_to_compensate == "CW") or \
-                (thruster_id == "2" and direction_to_compensate == "CCW"):
-            error = -1*error
-        return int(self._thrusters_actual_speed[thruster_id] + self._P * error)
+        actual_error = 0
+        #yaw: thruster 1-4
+        if error["yaw"] > 0:
+            #Forward: ccw/left deviation. To correct, speed up 2&4 and speed down 1&3
+            if (thruster_id == "1" or thruster_id == "3"):
+                actual_error = -1*error["yaw"]
+            else:
+                actual_error = error["yaw"]
+        else if error["yaw"] < 0:
+            #Forward: cw/right deviation. To correct, speed up 1&3 and speed down 2&4
+            if (thruster_id == "2" or thruster_id == "4"):
+                actual_error = -1*error["yaw"]
+            else:
+                actual_error = error["yaw"]
+
+        #pitch: thruster 5-8
+        if error["pitch"] > 0:
+            #Surface/submerge: forward deviation. To correct, speed up 5&6 and speed down 7&8
+            if (thruster_id == "7" or thruster_id == "8"):
+                actual_error += -1*error["pitch"]
+            else:
+                actual_error += error["pitch"]
+        else if error["pitch"] < 0:
+            #Surface/submerge: forward deviation. To correct, speed up 7&8 and speed down 5&6
+            if (thruster_id == "5" or thruster_id == "6"):
+                actual_error += -1*error["pitch"]
+            else:
+                actual_error += error["pitch"]
+
+        #roll: thruster 5-8
+        if error["roll"] > 0:
+            #Surface/submerge: right roll deviation. To correct, speed up 5&7 and speed down 6&8
+            if (thruster_id == "6" or thruster_id == "8"):
+                actual_error += -1*error["roll"]
+            else:
+                actual_error += error["roll"]
+        else if error["roll"] < 0:
+            #Surface/submerge: left roll deviation. To correct, speed up 6&8 and speed down 5&7
+            if (thruster_id == "5" or thruster_id == "7"):
+                actual_error += -1*error["roll"]
+            else:
+                actual_error += error["roll"]
+
+
+        return int(self._thrusters_actual_speed[thruster_id] + self._P * actual_error)
 
     def _update_stabilised_speed(self):
         """Update the stabilised speed."""
+        for key in _thrusters_actual_speed:
+            self._thrusters_stabilised_speed[key] = self._thrusters_actual_speed[key]
+
+        error = self._compute_movement_error(self._auv_motion)
+        for key in _thrusters_stabilised_speed:
+            self._thrusters_stabilised_speed[key] = self._compute_stabilised_speed(key, error)
         if self._auv_motion == "forward":
-            direction_to_compensate, error = self._compute_forward_movement_error()
-            self._thrusters_stabilised_speed["1"] = self._compute_stabilised_speed("1", error,
-                                                                                   direction_to_compensate)
-            self._thrusters_stabilised_speed["2"] = self._compute_stabilised_speed("2", error,
-                                                                                   direction_to_compensate)
-            self._thrusters_stabilised_speed["3"] = self._thrusters_actual_speed["3"]
-            self._thrusters_stabilised_speed["4"] = self._thrusters_actual_speed["4"]
-            self._thrusters_stabilised_speed["5"] = self._thrusters_actual_speed["5"]
-            self._thrusters_stabilised_speed["6"] = self._thrusters_actual_speed["6"]
-            self._thrusters_stabilised_speed["7"] = self._thrusters_actual_speed["7"]
-            self._thrusters_stabilised_speed["8"] = self._thrusters_actual_speed["8"]
+            error = self._compute_movement_error(self._auv_motion)
+            self._thrusters_stabilised_speed["1"] = self._compute_stabilised_speed("1", error)
+            self._thrusters_stabilised_speed["2"] = self._compute_stabilised_speed("2", error)
+
 
     def publish_stabilised_speed(self):
         """Publish the stabilised motor speed."""
@@ -145,3 +160,4 @@ class PIDController(object):
                 )
             except rospy.ROSSerializationException:
                 pass
+
