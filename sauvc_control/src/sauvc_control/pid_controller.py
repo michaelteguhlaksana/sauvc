@@ -88,7 +88,7 @@ class PIDController(object):
                 actual_error = -1*error["yaw"]
             else:
                 actual_error = error["yaw"]
-        else if error["yaw"] < 0:
+        elif error["yaw"] < 0:
             #Forward: cw/right deviation. To correct, speed up 1&3 and speed down 2&4
             if (thruster_id == "2" or thruster_id == "4"):
                 actual_error = -1*error["yaw"]
@@ -102,7 +102,7 @@ class PIDController(object):
                 actual_error += -1*error["pitch"]
             else:
                 actual_error += error["pitch"]
-        else if error["pitch"] < 0:
+        elif error["pitch"] < 0:
             #Surface/submerge: forward deviation. To correct, speed up 7&8 and speed down 5&6
             if (thruster_id == "5" or thruster_id == "6"):
                 actual_error += -1*error["pitch"]
@@ -116,7 +116,7 @@ class PIDController(object):
                 actual_error += -1*error["roll"]
             else:
                 actual_error += error["roll"]
-        else if error["roll"] < 0:
+        elif error["roll"] < 0:
             #Surface/submerge: left roll deviation. To correct, speed up 6&8 and speed down 5&7
             if (thruster_id == "5" or thruster_id == "7"):
                 actual_error += -1*error["roll"]
@@ -160,4 +160,3 @@ class PIDController(object):
                 )
             except rospy.ROSSerializationException:
                 pass
-
