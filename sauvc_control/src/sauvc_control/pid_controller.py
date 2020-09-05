@@ -128,11 +128,11 @@ class PIDController(object):
 
     def _update_stabilised_speed(self):
         """Update the stabilised speed."""
-        for key in _thrusters_actual_speed:
+        for key in self._thrusters_actual_speed:
             self._thrusters_stabilised_speed[key] = self._thrusters_actual_speed[key]
 
         error = self._compute_movement_error(self._auv_motion)
-        for key in _thrusters_stabilised_speed:
+        for key in self._thrusters_stabilised_speed:
             self._thrusters_stabilised_speed[key] = self._compute_stabilised_speed(key, error)
         if self._auv_motion == "forward":
             error = self._compute_movement_error(self._auv_motion)
